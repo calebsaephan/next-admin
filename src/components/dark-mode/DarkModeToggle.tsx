@@ -1,42 +1,22 @@
+"use client"
+
+import * as React from "react"
 import { Moon, Sun } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
 
-const DarkModeToggle = () => {
-    const [darkMode, setDarkMode] = useState(false)
+export default function DarkModeToggle() {
+    const { setTheme, theme } = useTheme()
 
-    useEffect(() => {
-        const storedMode = localStorage.getItem("darkMode") === "true"
-        setDarkMode(storedMode)
-        if (storedMode) {
-            document.documentElement.classList.add("dark")
-        } else {
-            document.documentElement.classList.remove("dark")
-        }
-    }, [])
-
-    const toggleDarkMode = () => {
-        setDarkMode((prev) => {
-            const newMode = !prev
-            localStorage.setItem("darkMode", newMode.toString())
-            if (newMode) {
-                document.documentElement.classList.add("dark")
-            } else {
-                document.documentElement.classList.remove("dark")
-            }
-            return newMode
-        })
+    const toggleTheme = () => {
+        setTheme(theme === "dark" ? "light" : "dark")
     }
 
     return (
-        <button
-            onClick={toggleDarkMode}
-            className="p-2 text-sm font-semibold bg-gray-200 rounded-md dark:bg-neutral-700 dark:text-white hover:cursor-pointer"
-        >
-            <div className="w-5 h-5 flex justify-center items-center">
-                {darkMode ? <Sun /> : <Moon />}
-            </div>
-        </button>
+        <Button variant="outline" size="icon" onClick={toggleTheme}>
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+        </Button>
     )
 }
-
-export default DarkModeToggle
