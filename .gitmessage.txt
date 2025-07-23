@@ -1,0 +1,16 @@
+# <type>(<scope>): <short summary>
+# 
+# [Type]     feat, fix, docs, style, refactor, perf, test, chore
+# [Scope]    Optional: area the change affects (e.g., api, auth, ui)
+#
+# Summary (max 72 chars):
+# - Use the imperative mood (e.g., "Add", "Fix")
+# - Don't end with punctuation
+
+# Body (optional):
+# - Explain the *what* and the *why*
+# - Wrap at 72 characters
+# - Mention context, decisions, or limitations
+
+# Footer (optional):
+# - References: Closes #123, Implements TICKET-456, Reviewed-by, etc.

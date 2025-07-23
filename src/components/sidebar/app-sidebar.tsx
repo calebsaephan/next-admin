@@ -2,10 +2,7 @@
 
 import * as React from "react"
 import {
-    AudioWaveform,
     ClipboardList,
-    Command,
-    GalleryVerticalEnd,
     LifeBuoy,
     LineChart,
     Logs,
@@ -19,16 +16,20 @@ import {
 import { NavMain } from "@/components/sidebar/nav-main"
 import { NavAdmin } from "@/components/sidebar/nav-admin"
 import { NavUser } from "@/components/sidebar/nav-user"
-import { TeamSwitcher } from "@/components/sidebar/team-switcher"
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
+    SidebarGroup,
     SidebarHeader,
+    SidebarMenu,
+    SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar"
 import { ScrollArea } from "../ui/scroll-area"
 import { NavHeader } from "./nav-header"
+import { NavSecondary } from "./nav-secondary"
+import DarkModeToggle from "../dark-mode/DarkModeToggle"
 
 const data = {
     user: {
@@ -45,7 +46,7 @@ const data = {
         },
         {
             title: "Orders",
-            url: "/dashboard",
+            url: "/orders",
             icon: Package,
         },
         {
@@ -126,6 +127,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <NavAdmin projects={data.projects} />
                 </ScrollArea>
             </SidebarContent>
+            <SidebarGroup>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <DarkModeToggle />
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarGroup>
             <SidebarFooter>
                 <NavUser user={data.user} />
             </SidebarFooter>

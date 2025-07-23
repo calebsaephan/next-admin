@@ -1,22 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { Bolt, ChevronsUpDown, Plus } from "lucide-react"
+import { Bolt } from "lucide-react"
 
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar"
 
