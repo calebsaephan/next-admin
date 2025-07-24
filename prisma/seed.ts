@@ -3,245 +3,134 @@ import {
     OrderStatus,
     PaymentStatus,
     ShipmentStatus,
-    Prisma,
+    RefundStatus,
 } from "@/app/generated/prisma"
+import { faker } from "@faker-js/faker"
 
 const prisma = new PrismaClient()
 
-async function main() {
-    // Create some Users
-    const user1 = await prisma.user.create({
-        data: {
-            email: "user35576765@example.com",
-            name: "John Doe",
-        },
-    })
+const generateOrderNumber = async () => {
+    const sequence: any =
+        await prisma.$queryRaw`SELECT nextval('order_number_seq')`
+    return `ORD${sequence[0].nextval.toString()}`
+}
 
-    const user2 = await prisma.user.create({
-        data: {
-            email: "user5547443@example.com",
-            name: "Jane Smith",
-        },
-    })
-
-    // Create Products
-    const product1 = await prisma.product.create({
-        data: {
-            name: "Laptop",
-            description: "A high-end gaming laptop.",
-            price: new Prisma.Decimal(1500.0),
-            stock: 100,
-        },
-    })
-
-    const product2 = await prisma.product.create({
-        data: {
-            name: "Smartphone",
-            description: "Latest model smartphone.",
-            price: new Prisma.Decimal(800.0),
-            stock: 200,
-        },
-    })
-
-    const generateOrderNumber = async () => {
-        const sequence: any =
-            await prisma.$queryRaw`SELECT nextval('order_number_seq')`
-        return sequence[0].nextval
+const generateRandomPriceAndStock = () => {
+    return {
+        price: parseFloat(faker.commerce.price({ min: 10, max: 1000, dec: 2 })),
+        stock: faker.number.int({ min: 10, max: 100 }),
     }
-    const orderNum1 = await generateOrderNumber()
-    const orderNum2 = await generateOrderNumber()
+}
 
-    // Create Orders with Payment Statuses
-    const order1 = await prisma.order.create({
-        data: {
-            orderNumber: `ORD${orderNum1}`,
-            userId: user1.id,
-            status: OrderStatus.PENDING, // Order is still pending
-            paymentStatus: PaymentStatus.PENDING,
-            totalAmount: new Prisma.Decimal(2300.0),
-            shippingAddress: "123 Main St, New York, NY",
-            createdBy: user1.id,
-            updatedBy: user1.id,
-        },
-    })
-
-    const order2 = await prisma.order.create({
-        data: {
-            orderNumber: `ORD${orderNum2}`,
-            userId: user2.id,
-            status: OrderStatus.CONFIRMED, // Confirmed order
-            paymentStatus: PaymentStatus.AUTHORIZED, // Payment authorized
-            totalAmount: new Prisma.Decimal(800.0),
-            shippingAddress: "456 Oak Ave, San Francisco, CA",
-            createdBy: user2.id,
-            updatedBy: user2.id,
-        },
-    })
-
-    // Add Order Items
-    await prisma.orderItem.createMany({
-        data: [
-            {
-                orderId: order1.id,
-                productId: product1.id,
-                quantity: 1,
-                price: new Prisma.Decimal(1500.0),
-                createdBy: user1.id,
-                updatedBy: user1.id,
+async function main() {
+    const users = []
+    for (let i = 0; i < 10; i++) {
+        const user = await prisma.user.create({
+            data: {
+                email: faker.internet.email(),
+                name: faker.person.fullName(),
             },
-            {
-                orderId: order1.id,
-                productId: product2.id,
-                quantity: 1,
-                price: new Prisma.Decimal(800.0),
-                createdBy: user1.id,
-                updatedBy: user1.id,
+        })
+        users.push(user)
+    }
+
+    const products = []
+    for (let i = 0; i < 10; i++) {
+        const { price, stock } = generateRandomPriceAndStock()
+        const product = await prisma.product.create({
+            data: {
+                name: faker.commerce.productName(),
+                description: faker.commerce.productDescription(),
+                price,
+                stock,
             },
-        ],
-    })
+        })
+        products.push(product)
+    }
 
-    await prisma.orderItem.create({
-        data: {
-            orderId: order2.id,
-            productId: product2.id,
-            quantity: 1,
-            price: new Prisma.Decimal(800.0),
-            createdBy: user2.id,
-            updatedBy: user2.id,
-        },
-    })
-
-    // Create Payments for Orders
-    const payment1 = await prisma.payment.create({
-        data: {
-            orderId: order1.id,
-            status: PaymentStatus.PENDING, // Not yet captured
-            amount: new Prisma.Decimal(2300.0),
-            paymentIntentId: "pi_12345",
-            customerId: "cus_67890",
-            paymentMethodId: "pm_abcde",
-        },
-    })
-
-    const payment2 = await prisma.payment.create({
-        data: {
-            orderId: order2.id,
-            status: PaymentStatus.CAPTURED, // Payment captured successfully
-            amount: new Prisma.Decimal(800.0),
-            paymentIntentId: "pi_23456",
-            customerId: "cus_98765",
-            paymentMethodId: "pm_fghij",
-        },
-    })
-
-    // Create Shipments for the Orders
-    const shipment1 = await prisma.shipment.create({
-        data: {
-            orderId: order1.id,
-            trackingNumber: "TN123456",
-            carrier: "UPS",
-            trackingUrl: "https://ups.com/tracking/TN123456",
-            shippedAt: new Date(),
-            status: ShipmentStatus.IN_TRANSIT, // Item is in transit
-            createdBy: user1.id,
-            updatedBy: user1.id,
-        },
-    })
-
-    const shipment2 = await prisma.shipment.create({
-        data: {
-            orderId: order2.id,
-            trackingNumber: "TN789012",
-            carrier: "FedEx",
-            trackingUrl: "https://fedex.com/tracking/TN789012",
-            shippedAt: new Date(),
-            status: ShipmentStatus.OUT_FOR_DELIVERY, // Item out for delivery
-            createdBy: user2.id,
-            updatedBy: user2.id,
-        },
-    })
-
-    // More complex case: Order with partial payment and multiple shipments
-    const order3 = await prisma.order.create({
-        data: {
-            orderNumber: "ORD003",
-            userId: user1.id,
-            status: OrderStatus.PENDING,
-            paymentStatus: PaymentStatus.PENDING,
-            totalAmount: new Prisma.Decimal(3500.0),
-            shippingAddress: "789 Elm St, Los Angeles, CA",
-            createdBy: user1.id,
-            updatedBy: user1.id,
-        },
-    })
-
-    // Create Order Items for the third order
-    await prisma.orderItem.createMany({
-        data: [
-            {
-                orderId: order3.id,
-                productId: product1.id,
-                quantity: 2,
-                price: new Prisma.Decimal(1500.0),
-                createdBy: user1.id,
-                updatedBy: user1.id,
+    for (let i = 0; i < 10; i++) {
+        const orderNumber = await generateOrderNumber()
+        const order = await prisma.order.create({
+            data: {
+                orderNumber: orderNumber,
+                userId: users[i % users.length].id,
+                status: OrderStatus.PENDING,
+                total: parseFloat(
+                    faker.commerce.price({ min: 100, max: 5000, dec: 2 })
+                ),
+                subtotal: parseFloat(
+                    faker.commerce.price({ min: 100, max: 4000, dec: 2 })
+                ),
+                tax: parseFloat(
+                    faker.commerce.price({ min: 10, max: 200, dec: 2 })
+                ),
+                discount: parseFloat(
+                    faker.commerce.price({ min: 0, max: 100, dec: 2 })
+                ),
+                shipping: parseFloat(
+                    faker.commerce.price({ min: 10, max: 50, dec: 2 })
+                ),
+                shippingAddress: faker.location.streetAddress(),
+                lineItems: {
+                    create: products.slice(0, 3).map((product) => ({
+                        productId: product.id,
+                        quantity: faker.number.int({ min: 1, max: 3 }),
+                        price: product.price,
+                        discount: 0,
+                    })),
+                },
             },
-            {
-                orderId: order3.id,
-                productId: product2.id,
-                quantity: 1,
-                price: new Prisma.Decimal(800.0),
-                createdBy: user1.id,
-                updatedBy: user1.id,
+        })
+
+        const payment = await prisma.payment.create({
+            data: {
+                status: PaymentStatus.SUCCEEDED,
+                amount: order.total,
+                currency: "usd",
+                paymentIntentId: "pi_" + faker.string.alphanumeric(20),
+                customerId: "cus_" + faker.string.alphanumeric(20),
+                chargeId: "ch_" + faker.string.alphanumeric(20),
+                paidAt: new Date(),
+                orderId: order.id, // Directly associating the order with the payment
             },
-        ],
-    })
+        })
 
-    // Create a partial payment for order3
-    const payment3 = await prisma.payment.create({
-        data: {
-            orderId: order3.id,
-            status: PaymentStatus.CAPTURED, // Partial payment status
-            amount: new Prisma.Decimal(2000.0), // Partial payment
-            paymentIntentId: "pi_34567",
-            customerId: "cus_11111",
-            paymentMethodId: "pm_klmno",
-        },
-    })
+        const shipment = await prisma.shipment.create({
+            data: {
+                orderId: order.id,
+                trackingNumber: "1Z" + faker.string.alphanumeric(18),
+                carrier: "UPS",
+                trackingUrl:
+                    "https://www.ups.com/track?tracknum=1Z" +
+                    faker.string.alphanumeric(18),
+                shippedAt: new Date(),
+                status: ShipmentStatus.IN_TRANSIT,
+            },
+        })
 
-    // Create multiple shipments for order3 (simulating split shipments)
-    const shipment3 = await prisma.shipment.create({
-        data: {
-            orderId: order3.id,
-            trackingNumber: "TN345678",
-            carrier: "USPS",
-            trackingUrl: "https://usps.com/tracking/TN345678",
-            shippedAt: new Date(),
-            status: ShipmentStatus.OUT_FOR_DELIVERY,
-            createdBy: user1.id,
-            updatedBy: user1.id,
-        },
-    })
+        if (i % 3 === 0) {
+            const refund = await prisma.refund.create({
+                data: {
+                    paymentId: payment.id,
+                    amount: parseFloat(
+                        faker.commerce.price({ min: 10, max: 1000, dec: 2 })
+                    ),
+                    reason: "Item returned",
+                    status: RefundStatus.PENDING,
+                    paymentIntentId: payment.paymentIntentId,
+                    createdAt: new Date(),
+                },
+            })
+        }
+    }
 
-    const shipment4 = await prisma.shipment.create({
-        data: {
-            orderId: order3.id,
-            trackingNumber: "TN987654",
-            carrier: "UPS",
-            trackingUrl: "https://ups.com/tracking/TN987654",
-            shippedAt: new Date(),
-            status: ShipmentStatus.IN_TRANSIT,
-            createdBy: user1.id,
-            updatedBy: user1.id,
-        },
-    })
-
-    console.log("Seeding finished successfully!")
+    console.log("Seed data created successfully")
 }
 
 main()
     .catch((e) => {
-        throw e
+        console.error(e)
+        process.exit(1)
     })
     .finally(async () => {
         await prisma.$disconnect()

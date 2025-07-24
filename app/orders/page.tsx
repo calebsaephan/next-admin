@@ -1,6 +1,5 @@
-import { PrismaClient } from "../generated/prisma"
+import prisma from "@/lib/prisma"
 import OrdersTable from "./components/OrdersTable"
-const prisma = new PrismaClient()
 
 export default async function Page() {
     const data = await prisma.order.findMany({
@@ -11,7 +10,6 @@ export default async function Page() {
     })
 
     const orders = await JSON.parse(JSON.stringify(data))
-    console.log(orders)
 
     return (
         <div className="flex flex-col p-4 gap-4">

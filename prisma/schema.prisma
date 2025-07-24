@@ -26,7 +26,7 @@ model Order {
   discount        Decimal     @default(0) @db.Decimal(10, 2)
   shipping        Decimal     @db.Decimal(10, 2)
   //
-  paymentId       String      @unique
+  paymentId       String?     @unique
   shippingAddress String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -34,7 +34,7 @@ model Order {
   updatedBy       String?
   user            User        @relation(fields: [userId], references: [id])
   lineItems       LineItem[]
-  payment         Payment[]
+  payments        Payment[]
   shipments       Shipment[]
 
   @@index([userId])

@@ -67,7 +67,17 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
     {
         accessorKey: "orderNumber",
         header: "Order Number",
-        cell: ({ row }) => <span>{row.getValue("orderNumber")}</span>,
+        cell: ({ row }) => {
+            console.log(row)
+            const orderId: string = row.original.id
+            console.log(orderId)
+
+            return (
+                <a href={`/orders/detail/${orderId}`}>
+                    {row.getValue("orderNumber")}
+                </a>
+            )
+        },
     },
     {
         accessorKey: "status",
