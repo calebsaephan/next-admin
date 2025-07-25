@@ -77,23 +77,31 @@ export function NavMain({
                                         </SidebarMenuButton>
                                     </CollapsibleTrigger>
                                     <CollapsibleContent>
-                                        <SidebarMenuSub>
-                                            {item.items?.map((subItem) => (
-                                                <SidebarMenuSubItem
-                                                    key={subItem.title}
-                                                >
-                                                    <SidebarMenuSubButton
-                                                        asChild
+                                        <div className="mb-1.5">
+                                            <SidebarMenuSub className="pl-5 py-2">
+                                                {item.items?.map((subItem) => (
+                                                    <SidebarMenuSubItem
+                                                        key={subItem.title}
                                                     >
-                                                        <a href={subItem.url}>
-                                                            <span>
-                                                                {subItem.title}
-                                                            </span>
-                                                        </a>
-                                                    </SidebarMenuSubButton>
-                                                </SidebarMenuSubItem>
-                                            ))}
-                                        </SidebarMenuSub>
+                                                        <SidebarMenuSubButton
+                                                            asChild
+                                                        >
+                                                            <a
+                                                                href={
+                                                                    subItem.url
+                                                                }
+                                                            >
+                                                                <span>
+                                                                    {
+                                                                        subItem.title
+                                                                    }
+                                                                </span>
+                                                            </a>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                ))}
+                                            </SidebarMenuSub>
+                                        </div>
                                     </CollapsibleContent>
                                 </SidebarMenuItem>
                             </Collapsible>

@@ -1,8 +1,41 @@
+import {
+    DisplayLabel,
+    DisplayNumberLabel,
+} from "@/components/custom/display-label"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 import prisma from "@/lib/prisma"
 import { OrderWithFullDetails } from "@/types"
+import {
+    capitalize,
+    formatCurrency,
+    formatCurrencyNoUnitDisplay,
+} from "@/utils"
+import { getStatusBadgeVariant } from "@/utils/orders"
+import { MoveLeft } from "lucide-react"
 
-export default async function Page({ params }: { params: { id: string } }) {
-    const { id: orderId } = params
+interface PageProps {
+    params: Promise<{ id: string }>
+}
+
+export default async function Page({ params }: PageProps) {
+    const { id: orderId } = await params
     if (!orderId) {
         throw new Error("Order ID is required")
     }
@@ -11,7 +44,11 @@ export default async function Page({ params }: { params: { id: string } }) {
             user: true,
             payments: true,
             shipments: true,
-            lineItems: true,
+            lineItems: {
+                include: {
+                    product: true,
+                },
+            },
         },
         where: {
             id: orderId,
@@ -24,180 +61,332 @@ export default async function Page({ params }: { params: { id: string } }) {
     const order: OrderWithFullDetails = await JSON.parse(JSON.stringify(data))
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-semibold mb-6">
-                Order #{order.orderNumber} Details
-            </h1>
-            <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-md mb-6">
-                <h2 className="text-xl font-medium mb-4">
-                    Customer Information
-                </h2>
-                <p>
-                    <strong>Name:</strong> {order.user.name}
-                </p>
-                <p>
-                    <strong>Email:</strong> {order.user.email}
-                </p>
+        <div className="w-full md:max-w-xl lg:max-w-5xl md:mx-auto p-6 text-sm">
+            <div className="mb-4">
+                <a href="/orders">
+                    <Button
+                        variant={"discreetLink"}
+                        className="px-0 has-[>svg]:px-0"
+                    >
+                        <MoveLeft />
+                        Back to Orders
+                    </Button>
+                </a>
             </div>
+            <h2 className="mb-6 items-center flex">
+                Order Details{" "}
+                <code className="ml-4 px-4 text-lg border">
+                    #{order.orderNumber}
+                </code>
+            </h2>
+            <div className="flex flex-col gap-12">
+                <div className="flex flex-col gap-6">
+                    <div>
+                        <h5 className="mb-2">Customer</h5>
+                        <Card>
+                            <CardContent>
+                                <div className="grid grid-cols-3">
+                                    <div className="flex flex-col">
+                                        <DisplayLabel>Name</DisplayLabel>
+                                        <span>{order.user.name}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <DisplayLabel>Email</DisplayLabel>
+                                        <span>{order.user.email}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div>
+                        <h5 className="mb-2">Order Summary</h5>
+                        <Card>
+                            <CardContent className="flex flex-col gap-6">
+                                <div className="grid grid-cols-3">
+                                    <div className="flex flex-col">
+                                        <DisplayLabel>Status</DisplayLabel>
+                                        <span>
+                                            <Badge
+                                                variant={getStatusBadgeVariant(
+                                                    order.status
+                                                )}
+                                            >
+                                                {capitalize(order.status)}
+                                            </Badge>
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <DisplayLabel>Created At</DisplayLabel>
+                                        <span>
+                                            {new Date(
+                                                order.createdAt
+                                            ).toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <DisplayLabel>
+                                            Last Updated
+                                        </DisplayLabel>
+                                        <span>
+                                            {new Date(
+                                                order.updatedAt
+                                            ).toLocaleString()}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col max-w-xs gap-1 mt-2 -ml-3 mr-auto text-sm text-right [&>div]:items-baseline [&>div>span]:mb-0">
+                                    <div className="grid grid-cols-2 gap-x-12">
+                                        <DisplayLabel>Subtotal</DisplayLabel>
+                                        <DisplayNumberLabel>
+                                            {formatCurrency(
+                                                order.subtotal.toString()
+                                            )}
+                                        </DisplayNumberLabel>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-12">
+                                        <DisplayLabel>Tax</DisplayLabel>
+                                        <DisplayNumberLabel>
+                                            {formatCurrency(
+                                                order.tax.toString()
+                                            )}
+                                        </DisplayNumberLabel>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-12">
+                                        <DisplayLabel>Discount</DisplayLabel>
+                                        <DisplayNumberLabel>
+                                            {formatCurrency(
+                                                order.discount.toString()
+                                            )}
+                                        </DisplayNumberLabel>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-12">
+                                        <DisplayLabel>Shipping</DisplayLabel>
+                                        <DisplayNumberLabel>
+                                            {formatCurrency(
+                                                order.shipping.toString()
+                                            )}
+                                        </DisplayNumberLabel>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-12">
+                                        <DisplayLabel>Total</DisplayLabel>
+                                        <DisplayNumberLabel>
+                                            {formatCurrency(
+                                                order.total.toString()
+                                            )}
+                                        </DisplayNumberLabel>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
 
-            <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-md mb-6">
-                <h2 className="text-xl font-medium mb-4">Order Summary</h2>
-                <p>
-                    <strong>Status:</strong> {order.status}
-                </p>
-                <p>
-                    <strong>Total:</strong> ${order.total.toString()}
-                </p>
-                <p>
-                    <strong>Subtotal:</strong> ${order.subtotal.toString()}
-                </p>
-                <p>
-                    <strong>Tax:</strong> ${order.tax.toString()}
-                </p>
-                <p>
-                    <strong>Discount:</strong> ${order.discount.toString()}
-                </p>
-                <p>
-                    <strong>Shipping:</strong> ${order.shipping.toString()}
-                </p>
-                <p>
-                    <strong>Created At:</strong>{" "}
-                    {new Date(order.createdAt).toLocaleDateString()}
-                </p>
-                <p>
-                    <strong>Last Updated:</strong>{" "}
-                    {new Date(order.updatedAt).toLocaleDateString()}
-                </p>
-            </div>
+                <div>
+                    <h5 className="mb-2">Line Items</h5>
+                    <div className="rounded overflow-hidden border bg-neutral-100 dark:bg-neutral-900 shadow">
+                        {order.lineItems.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Product</TableHead>
+                                        <TableHead>Quantity</TableHead>
+                                        <TableHead className="text-right">
+                                            Price
+                                        </TableHead>
+                                        <TableHead className="text-right">
+                                            Discount
+                                        </TableHead>
+                                        <TableHead className="text-right">
+                                            Subtotal
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {order.lineItems.map((lineItem) => {
+                                        const price = Number(lineItem.price)
+                                        const discount = Number(
+                                            lineItem.discount
+                                        )
+                                        const subtotal =
+                                            price * lineItem.quantity - discount
 
-            <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-md mb-6">
-                <h2 className="text-xl font-medium mb-4">
-                    Payment Information
-                </h2>
-                {order.payments.length > 0 ? (
-                    order.payments.map((payment, index) => (
-                        <div key={index} className="mb-4">
-                            <p>
-                                <strong>Payment Status:</strong>{" "}
-                                {payment.status}
-                            </p>
-                            <p>
-                                <strong>Amount:</strong> $
-                                {payment.amount.toString()} {payment.currency}
-                            </p>
-                            <p>
-                                <strong>Payment Intent ID:</strong>{" "}
-                                {payment.paymentIntentId}
-                            </p>
-                            <p>
-                                <strong>Paid At:</strong>{" "}
-                                {payment.paidAt
-                                    ? new Date(
-                                          payment.paidAt
-                                      ).toLocaleDateString()
-                                    : "Not Paid"}
-                            </p>
-                        </div>
-                    ))
-                ) : (
-                    <p>No payment information available.</p>
-                )}
-            </div>
+                                        return (
+                                            <TableRow key={lineItem.id}>
+                                                <TableCell>
+                                                    {lineItem.product?.name}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {lineItem.quantity}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-mono text-right">
+                                                        {formatCurrencyNoUnitDisplay(
+                                                            price
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-mono text-right">
+                                                        {formatCurrencyNoUnitDisplay(
+                                                            discount
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-mono text-right">
+                                                        {formatCurrencyNoUnitDisplay(
+                                                            subtotal
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    })}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <p>No line items available.</p>
+                        )}
+                    </div>
+                </div>
 
-            <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-md mb-6">
-                <h2 className="text-xl font-medium mb-4">
-                    Shipment Information
-                </h2>
-                {order.shipments.length > 0 ? (
-                    order.shipments.map((shipment, index) => (
-                        <div key={index} className="mb-4">
-                            <p>
-                                <strong>Tracking Number:</strong>{" "}
-                                {shipment.trackingNumber}
-                            </p>
-                            <p>
-                                <strong>Carrier:</strong> {shipment.carrier}
-                            </p>
-                            <p>
-                                <strong>Status:</strong> {shipment.status}
-                            </p>
-                            <p>
-                                <strong>Shipped At:</strong>{" "}
-                                {new Date(
-                                    shipment.shippedAt
-                                ).toLocaleDateString()}
-                            </p>
-                            {shipment.trackingUrl && (
-                                <p>
-                                    <a
-                                        href={shipment.trackingUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500"
-                                    >
-                                        Track Shipment
-                                    </a>
-                                </p>
-                            )}
-                        </div>
-                    ))
-                ) : (
-                    <p>No shipment information available.</p>
-                )}
-            </div>
+                <div>
+                    <h5 className="mb-2">Payments</h5>
+                    <Accordion
+                        type="multiple"
+                        className="w-full bg-neutral-100 dark:bg-neutral-900 shadow px-6 border rounded"
+                    >
+                        {order.payments.length > 0 ? (
+                            order.payments.map((payment, index) => (
+                                <AccordionItem key={index} value="item-1">
+                                    <AccordionTrigger>
+                                        <span>Payment Id</span> {payment.id}
+                                    </AccordionTrigger>
+                                    <AccordionContent className="flex flex-col gap-4 text-balance">
+                                        <Separator></Separator>
+                                        <div className="flex flex-col my-4 gap-2">
+                                            <div className="grid grid-cols-2">
+                                                <DisplayLabel>
+                                                    Payment Status
+                                                </DisplayLabel>
+                                                <span>{payment.status}</span>
+                                            </div>
+                                            <div className="grid grid-cols-2">
+                                                <DisplayLabel>
+                                                    Amount
+                                                </DisplayLabel>
+                                                <DisplayNumberLabel>
+                                                    {formatCurrencyNoUnitDisplay(
+                                                        payment.amount.toString()
+                                                    )}
+                                                    <span className="uppercase">
+                                                        {" " + payment.currency}
+                                                    </span>
+                                                </DisplayNumberLabel>
+                                            </div>
+                                            <div className="grid grid-cols-2">
+                                                <DisplayLabel>
+                                                    Payment Intent ID
+                                                </DisplayLabel>
+                                                <code className="-ml-1.5">
+                                                    {payment.paymentIntentId}
+                                                </code>
+                                            </div>
+                                            <div className="grid grid-cols-2">
+                                                <DisplayLabel>
+                                                    Paid At
+                                                </DisplayLabel>
+                                                <span>
+                                                    {payment.paidAt
+                                                        ? new Date(
+                                                              payment.paidAt
+                                                          ).toLocaleString()
+                                                        : "Not Paid"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))
+                        ) : (
+                            <p>No payment information available.</p>
+                        )}
+                    </Accordion>
+                </div>
 
-            <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-md mb-6">
-                <h2 className="text-xl font-medium mb-4">Line Items</h2>
-                {order.lineItems.length > 0 ? (
-                    <table className="min-w-full table-auto">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-2 text-left">Product</th>
-                                <th className="px-4 py-2 text-left">
-                                    Quantity
-                                </th>
-                                <th className="px-4 py-2 text-left">Price</th>
-                                <th className="px-4 py-2 text-left">
-                                    Discount
-                                </th>
-                                <th className="px-4 py-2 text-left">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {order.lineItems.map((lineItem) => (
-                                <tr key={lineItem.id}>
-                                    <td className="px-4 py-2">
-                                        Prdocut Name
-                                        {lineItem.product?.name}
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        {lineItem.quantity}
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        ${lineItem.price.toString()}
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        ${lineItem.discount.toString()}
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        $
-                                        {(
-                                            parseFloat(
-                                                lineItem.price.toString()
-                                            ) *
-                                                lineItem.quantity -
-                                            parseFloat(
-                                                lineItem.discount.toString()
-                                            )
-                                        ).toFixed(2)}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <p>No line items available.</p>
-                )}
+                <div>
+                    <h5 className="mb-2">Shipments</h5>
+                    <Accordion
+                        type="multiple"
+                        className="w-full bg-neutral-100 dark:bg-neutral-900 px-6 shadow border rounded"
+                    >
+                        {order.shipments.length > 0 ? (
+                            order.shipments.map((shipment, index) => (
+                                <AccordionItem key={index} value="item-1">
+                                    <AccordionTrigger>
+                                        <span>Tracking Number</span>
+                                        {shipment.trackingNumber}
+                                    </AccordionTrigger>
+                                    <AccordionContent className="flex flex-col gap-4 text-balance">
+                                        <Separator></Separator>
+                                        <div className="grid grid-cols-3 gap-y-8 gap-x-2">
+                                            <div className="flex flex-col">
+                                                <DisplayLabel>
+                                                    Carrier
+                                                </DisplayLabel>
+                                                <span>{shipment.carrier}</span>
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                <DisplayLabel>
+                                                    Status
+                                                </DisplayLabel>
+                                                <span>{shipment.status}</span>
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                <DisplayLabel>
+                                                    Shipped At
+                                                </DisplayLabel>
+                                                <span>
+                                                    {new Date(
+                                                        shipment.shippedAt
+                                                    ).toLocaleString()}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                <DisplayLabel>
+                                                    Tracking Number
+                                                </DisplayLabel>
+                                                <span>
+                                                    {shipment.trackingNumber}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            {shipment.trackingUrl && (
+                                                <a
+                                                    href={shipment.trackingUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-500"
+                                                >
+                                                    <Button>
+                                                        Track Shipment
+                                                    </Button>
+                                                </a>
+                                            )}
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))
+                        ) : (
+                            <p>No shipment information available.</p>
+                        )}
+                    </Accordion>
+                </div>
             </div>
         </div>
     )

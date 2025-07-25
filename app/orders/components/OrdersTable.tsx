@@ -35,9 +35,10 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Badge, badgeVariants } from "@/components/ui/badge"
-import type { VariantProps } from "class-variance-authority"
+import { Badge } from "@/components/ui/badge"
 import { OrderWithUserPayment } from "@/types"
+import { getStatusBadgeVariant } from "@/utils/orders"
+import { capitalize } from "@/utils"
 
 export const columns: ColumnDef<OrderWithUserPayment>[] = [
     {
@@ -68,9 +69,7 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
         accessorKey: "orderNumber",
         header: "Order Number",
         cell: ({ row }) => {
-            console.log(row)
             const orderId: string = row.original.id
-            console.log(orderId)
 
             return (
                 <a href={`/orders/detail/${orderId}`}>
@@ -83,27 +82,13 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
-            type BadgeVariant = VariantProps<typeof badgeVariants>["variant"]
             const status: string = row.getValue("status")
 
-            const statusMap: Record<string, BadgeVariant> = {
-                processing: "progress",
-                pending: "warning",
-                packed: "progress",
-                shipped: "info",
-                delivered: "success",
-                completed: "success",
-                cancelled: "neutral",
-                refunded: "neutral",
-                hold: "error",
-            }
-
-            const variant: BadgeVariant =
-                statusMap[status.toLowerCase()] ?? "default"
+            const variant = getStatusBadgeVariant(status)
 
             return (
-                <div className="capitalize">
-                    <Badge variant={variant}>{status}</Badge>
+                <div>
+                    <Badge variant={variant}>{capitalize(status)}</Badge>
                 </div>
             )
         },
@@ -230,15 +215,15 @@ export default function OrdersTable({
         <div className="w-full">
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Filter emails..."
+                    placeholder="Filter orders..."
                     value={
                         (table
-                            .getColumn("email")
+                            .getColumn("orderNumber")
                             ?.getFilterValue() as string) ?? ""
                     }
                     onChange={(event) =>
                         table
-                            .getColumn("email")
+                            .getColumn("orderNumber")
                             ?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
