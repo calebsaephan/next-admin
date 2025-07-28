@@ -24,8 +24,8 @@ CREATE TABLE "Order" (
     "tax" DECIMAL(10,2) NOT NULL,
     "discount" DECIMAL(10,2) NOT NULL DEFAULT 0,
     "shipping" DECIMAL(10,2) NOT NULL,
-    "paymentId" TEXT NOT NULL,
-    "shippingAddress" TEXT NOT NULL,
+    "paymentId" TEXT,
+    "shippingAddressId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT,
@@ -51,25 +51,12 @@ CREATE TABLE "LineItem" (
 );
 
 -- CreateTable
-CREATE TABLE "Product" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "price" DECIMAL(10,2) NOT NULL,
-    "stock" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT,
-    "updatedBy" TEXT,
-
-    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "name" TEXT,
+    "name" TEXT NOT NULL,
+    "phone" TEXT,
+    "shippingAddressId" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -124,6 +111,51 @@ CREATE TABLE "Shipment" (
 );
 
 -- CreateTable
+CREATE TABLE "ShippingAddress" (
+    "id" TEXT NOT NULL,
+    "orderId" TEXT,
+    "addressLine1" TEXT NOT NULL,
+    "addressLine2" TEXT,
+    "city" TEXT NOT NULL,
+    "state" TEXT NOT NULL,
+    "postalCode" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "phoneNumber" TEXT,
+    "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ShippingAddress_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Product" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "price" DECIMAL(10,2) NOT NULL,
+    "stock" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" TEXT,
+    "updatedBy" TEXT,
+
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductImage" (
+    "id" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProductImage_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "ChangeLog" (
     "id" TEXT NOT NULL,
     "modelName" TEXT NOT NULL,
@@ -134,6 +166,14 @@ CREATE TABLE "ChangeLog" (
     "changeDetails" TEXT NOT NULL,
 
     CONSTRAINT "ChangeLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "_ShippingAddressToUser" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL,
+
+    CONSTRAINT "_ShippingAddressToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
 
 -- CreateIndex
@@ -169,8 +209,23 @@ CREATE INDEX "Payment_status_idx" ON "Payment"("status");
 -- CreateIndex
 CREATE INDEX "Shipment_orderId_idx" ON "Shipment"("orderId");
 
+-- CreateIndex
+CREATE INDEX "ShippingAddress_addressLine1_addressLine2_city_state_postal_idx" ON "ShippingAddress"("addressLine1", "addressLine2", "city", "state", "postalCode", "country");
+
+-- CreateIndex
+CREATE INDEX "ProductImage_productId_order_idx" ON "ProductImage"("productId", "order");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductImage_productId_order_key" ON "ProductImage"("productId", "order");
+
+-- CreateIndex
+CREATE INDEX "_ShippingAddressToUser_B_index" ON "_ShippingAddressToUser"("B");
+
 -- AddForeignKey
 ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Order" ADD CONSTRAINT "Order_shippingAddressId_fkey" FOREIGN KEY ("shippingAddressId") REFERENCES "ShippingAddress"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LineItem" ADD CONSTRAINT "LineItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -186,3 +241,12 @@ ALTER TABLE "Refund" ADD CONSTRAINT "Refund_paymentId_fkey" FOREIGN KEY ("paymen
 
 -- AddForeignKey
 ALTER TABLE "Shipment" ADD CONSTRAINT "Shipment_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductImage" ADD CONSTRAINT "ProductImage_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ShippingAddressToUser" ADD CONSTRAINT "_ShippingAddressToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "ShippingAddress"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ShippingAddressToUser" ADD CONSTRAINT "_ShippingAddressToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
