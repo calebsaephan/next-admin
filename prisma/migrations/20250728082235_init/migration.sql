@@ -55,8 +55,7 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "phone" TEXT,
-    "shippingAddressId" TEXT NOT NULL,
+    "shippingAddressId" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );

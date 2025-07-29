@@ -258,7 +258,10 @@ export default async function Page({ params }: PageProps) {
                     >
                         {order.payments.length > 0 ? (
                             order.payments.map((payment, index) => (
-                                <AccordionItem key={index} value="item-1">
+                                <AccordionItem
+                                    key={index}
+                                    value={index.toString()}
+                                >
                                     <AccordionTrigger>
                                         <span>Payment Id</span> {payment.id}
                                     </AccordionTrigger>

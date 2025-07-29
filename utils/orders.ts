@@ -10,6 +10,9 @@ export const statusMap: Record<string, BadgeVariant> = {
     cancelled: "neutral",
     refunded: "neutral",
     hold: "error",
+    partially_shipped: "info",
+    partially_refunded: "warning",
+    confirmed: "info",
 }
 
 export const getStatusBadgeVariant = (status: string) => {
