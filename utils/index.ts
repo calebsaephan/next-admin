@@ -8,12 +8,18 @@ export const formatCurrencyNoUnitDisplay = (amount: number | string) => {
     }).format(numberAmount)
 }
 
-export const formatCurrency = (amount: number | string) => {
+export const formatCurrency = (
+    amount: number | string,
+    locale = "en-US",
+    currency = "USD"
+) => {
     const numberAmount = Number(amount)
 
-    return new Intl.NumberFormat("en-US", {
+    if (isNaN(numberAmount)) return ""
+
+    return new Intl.NumberFormat(locale, {
         style: "currency",
-        currency: "USD",
+        currency,
     }).format(numberAmount)
 }
 

@@ -12,7 +12,7 @@ export default async function Page() {
     const orders = await JSON.parse(JSON.stringify(data))
 
     return (
-        <div className="flex flex-col p-4 gap-4">
+        <div className="flex flex-col p-4">
             <h3>Orders</h3>
             <OrdersTable orders={orders}></OrdersTable>
         </div>

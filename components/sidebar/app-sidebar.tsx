@@ -24,11 +24,9 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarMenuItem,
-    SidebarRail,
 } from "../ui/sidebar"
 import { ScrollArea } from "../ui/scroll-area"
 import { NavHeader } from "./nav-header"
-import { NavSecondary } from "./nav-secondary"
 import DarkModeToggle from "../dark-mode/DarkModeToggle"
 
 const data = {

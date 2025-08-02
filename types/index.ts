@@ -21,3 +21,10 @@ export type OrderWithFullDetails = Order & {
 }
 
 export type LineItemWithProductDetail = LineItem & { product: Product }
+
+export type DisplayCurrencyLabelProps = React.ComponentProps<"span"> & {
+    value: number | string
+    locale?: string
+    currency?: string
+    showUnits?: boolean
+}

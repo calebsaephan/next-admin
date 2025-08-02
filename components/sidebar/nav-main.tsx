@@ -78,7 +78,7 @@ export function NavMain({
                                     </CollapsibleTrigger>
                                     <CollapsibleContent>
                                         <div className="mb-1.5">
-                                            <SidebarMenuSub className="pl-5 py-2">
+                                            <SidebarMenuSub>
                                                 {item.items?.map((subItem) => (
                                                     <SidebarMenuSubItem
                                                         key={subItem.title}

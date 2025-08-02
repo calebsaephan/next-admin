@@ -1,18 +1,16 @@
 import { BadgeVariant } from "@/types"
 
 export const statusMap: Record<string, BadgeVariant> = {
-    processing: "progress",
-    pending: "warning",
-    packed: "progress",
-    shipped: "info",
-    delivered: "success",
+    pending: "neutral",
+    processing: "warning",
+    confirmed: "warning",
+    shipped: "success",
     completed: "success",
-    cancelled: "neutral",
-    refunded: "neutral",
+    refunded: "info",
+    cancelled: "error",
     hold: "error",
     partially_shipped: "info",
     partially_refunded: "warning",
-    confirmed: "info",
 }
 
 export const getStatusBadgeVariant = (status: string) => {

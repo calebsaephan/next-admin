@@ -1,6 +1,7 @@
 import {
     DisplayLabel,
     DisplayNumberLabel,
+    DisplayCurrencyLabel,
 } from "@/components/custom/display-label"
 import {
     Accordion,
@@ -74,8 +75,8 @@ export default async function Page({ params }: PageProps) {
                 </a>
             </div>
             <h2 className="mb-6 items-center flex">
-                Order Details{" "}
-                <code className="ml-4 px-4 text-lg border">
+                Order Details
+                <code className="ml-4 px-4 text-lg border font-sans">
                     #{order.orderNumber}
                 </code>
             </h2>
@@ -134,46 +135,36 @@ export default async function Page({ params }: PageProps) {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex flex-col max-w-xs gap-1 mt-2 -ml-3 mr-auto text-sm text-right [&>div]:items-baseline [&>div>span]:mb-0">
+                                <div className="flex flex-col max-w-xs gap-1 mt-2 mr-auto text-sm text-right [&>div]:items-baseline [&>div>span]:mb-0">
                                     <div className="grid grid-cols-2 gap-x-12">
                                         <DisplayLabel>Subtotal</DisplayLabel>
-                                        <DisplayNumberLabel>
-                                            {formatCurrency(
-                                                order.subtotal.toString()
-                                            )}
-                                        </DisplayNumberLabel>
+                                        <DisplayCurrencyLabel
+                                            value={order.subtotal.toString()}
+                                        />
                                     </div>
                                     <div className="grid grid-cols-2 gap-x-12">
                                         <DisplayLabel>Tax</DisplayLabel>
-                                        <DisplayNumberLabel>
-                                            {formatCurrency(
-                                                order.tax.toString()
-                                            )}
-                                        </DisplayNumberLabel>
+                                        <DisplayCurrencyLabel
+                                            value={order.tax.toString()}
+                                        />
                                     </div>
                                     <div className="grid grid-cols-2 gap-x-12">
                                         <DisplayLabel>Discount</DisplayLabel>
-                                        <DisplayNumberLabel>
-                                            {formatCurrency(
-                                                order.discount.toString()
-                                            )}
-                                        </DisplayNumberLabel>
+                                        <DisplayCurrencyLabel
+                                            value={order.discount.toString()}
+                                        />
                                     </div>
                                     <div className="grid grid-cols-2 gap-x-12">
                                         <DisplayLabel>Shipping</DisplayLabel>
-                                        <DisplayNumberLabel>
-                                            {formatCurrency(
-                                                order.shipping.toString()
-                                            )}
-                                        </DisplayNumberLabel>
+                                        <DisplayCurrencyLabel
+                                            value={order.shipping.toString()}
+                                        />
                                     </div>
                                     <div className="grid grid-cols-2 gap-x-12">
                                         <DisplayLabel>Total</DisplayLabel>
-                                        <DisplayNumberLabel>
-                                            {formatCurrency(
-                                                order.total.toString()
-                                            )}
-                                        </DisplayNumberLabel>
+                                        <DisplayCurrencyLabel
+                                            value={order.total.toString()}
+                                        />
                                     </div>
                                 </div>
                             </CardContent>
@@ -183,7 +174,7 @@ export default async function Page({ params }: PageProps) {
 
                 <div>
                     <h5 className="mb-2">Line Items</h5>
-                    <div className="rounded overflow-hidden border bg-neutral-100 dark:bg-neutral-900 shadow">
+                    <div className="rounded overflow-hidden border shadow">
                         {order.lineItems.length > 0 ? (
                             <Table>
                                 <TableHeader>
@@ -219,25 +210,19 @@ export default async function Page({ params }: PageProps) {
                                                     {lineItem.quantity}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="font-mono text-right">
-                                                        {formatCurrencyNoUnitDisplay(
-                                                            price
-                                                        )}
-                                                    </div>
+                                                    <DisplayCurrencyLabel
+                                                        value={price}
+                                                    />
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="font-mono text-right">
-                                                        {formatCurrencyNoUnitDisplay(
-                                                            discount
-                                                        )}
-                                                    </div>
+                                                    <DisplayCurrencyLabel
+                                                        value={discount}
+                                                    />
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="font-mono text-right">
-                                                        {formatCurrencyNoUnitDisplay(
-                                                            subtotal
-                                                        )}
-                                                    </div>
+                                                    <DisplayCurrencyLabel
+                                                        value={subtotal}
+                                                    />
                                                 </TableCell>
                                             </TableRow>
                                         )
@@ -254,7 +239,7 @@ export default async function Page({ params }: PageProps) {
                     <h5 className="mb-2">Payments</h5>
                     <Accordion
                         type="multiple"
-                        className="w-full bg-neutral-100 dark:bg-neutral-900 shadow px-6 border rounded"
+                        className="w-full bg-card shadow px-6 border rounded"
                     >
                         {order.payments.length > 0 ? (
                             order.payments.map((payment, index) => (
@@ -321,11 +306,14 @@ export default async function Page({ params }: PageProps) {
                     <h5 className="mb-2">Shipments</h5>
                     <Accordion
                         type="multiple"
-                        className="w-full bg-neutral-100 dark:bg-neutral-900 px-6 shadow border rounded"
+                        className="w-full bg-card shadow px-6 border rounded"
                     >
                         {order.shipments.length > 0 ? (
                             order.shipments.map((shipment, index) => (
-                                <AccordionItem key={index} value="item-1">
+                                <AccordionItem
+                                    key={index}
+                                    value={index.toString()}
+                                >
                                     <AccordionTrigger>
                                         <span>Tracking Number</span>
                                         {shipment.trackingNumber}

@@ -22,7 +22,6 @@ import {
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -112,6 +111,7 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
         header: ({ column }) => (
             <Button
                 variant="ghost"
+                className="px-0 has-[>svg]:px-0"
                 onClick={() =>
                     column.toggleSorting(column.getIsSorted() === "asc")
                 }
@@ -125,9 +125,15 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
         },
     },
     {
-        accessorKey: "shippingAddress",
+        accessorKey: "address",
         header: "Shipping Address",
-        cell: ({ row }) => <div>{row.getValue("shippingAddress")}</div>,
+        cell: ({ row }) => (
+            <div>
+                <div>
+                    {row.original.state}, {row.original.country}
+                </div>
+            </div>
+        ),
     },
     {
         accessorKey: "createdAt",
@@ -158,7 +164,6 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
                             onClick={() =>
                                 navigator.clipboard.writeText(
@@ -255,8 +260,8 @@ export default function OrdersTable({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="rounded-md border">
-                <Table>
+            <div className="w-full overflow-x-auto rounded-md border">
+                <Table className="min-w-full table-auto">
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
