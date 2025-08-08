@@ -7,9 +7,9 @@ import {
     Product,
     UserAddress,
     Order,
-    User,
     Payment,
     Prisma,
+    Customer,
 } from "@/app/generated/prisma"
 import { Decimal } from "@/app/generated/prisma/runtime/library"
 import { faker } from "@faker-js/faker"
@@ -137,7 +137,7 @@ const createOrder = async (userId: string, address: UserAddress) => {
             ? faker.number.int({ min: 5, max: 50 })
             : 0
 
-    const order = {
+    const order: Prisma.OrderCreateManyInput = {
         orderNumber,
         userId,
         status: faker.helpers.arrayElement([
@@ -153,14 +153,14 @@ const createOrder = async (userId: string, address: UserAddress) => {
         total: subtotal + tax + shipping - discount,
         subtotal,
         tax,
-        shipping: parseFloat(shipping.toString()),
-        discount: parseFloat(discount.toString()),
+        shipping: shipping,
+        discount: discount,
         addressLine1: address.addressLine1,
         addressLine2: address.addressLine2,
         city: address.city,
         state: address.state,
         postalCode: address.postalCode,
-        country: address.postalCode,
+        country: address.country,
     }
 
     return order
@@ -184,18 +184,18 @@ const generateLineItemsForOrders = async (
     })
 }
 
-const generateUsers = async (amount: number): Promise<User[]> => {
-    const users = []
+const generateCustomers = async (amount: number): Promise<Customer[]> => {
+    const customers = []
     for (let i = 0; i < amount; i++) {
-        const userData = {
+        const customer = {
             email: faker.internet.email(),
             name: faker.person.fullName(),
             phoneNumber: faker.phone.number(),
         }
-        users.push(userData)
+        customers.push(customer)
     }
-    const usersDB = await prisma.user.createManyAndReturn({
-        data: users,
+    const usersDB = await prisma.customer.createManyAndReturn({
+        data: customers,
     })
 
     return usersDB
@@ -269,14 +269,14 @@ const generateRefunds = async (payments: Payment[]) => {
 
 const generateOrders = async (
     amount: number,
-    users: User[],
+    customers: Customer[],
     addresses: UserAddress[]
 ) => {
     const orders = []
     for (let i = 0; i < amount; i++) {
-        const randomUser = faker.helpers.arrayElement(users)
+        const randomCustomer = faker.helpers.arrayElement(customers)
         const randomAddr = faker.helpers.arrayElement(addresses)
-        const order = await createOrder(randomUser.id, randomAddr)
+        const order = await createOrder(randomCustomer.id, randomAddr)
 
         orders.push(order)
     }
@@ -288,7 +288,7 @@ const generateOrders = async (
 }
 
 const seed = async () => {
-    const users = await generateUsers(100)
+    const users = await generateCustomers(100)
     const addresses = await generateShippingAddresses(100)
     const products = await generateProducts(100)
     const orders = await generateOrders(100, users, addresses)

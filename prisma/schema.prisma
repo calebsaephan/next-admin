@@ -38,7 +38,7 @@ model Order {
   postalCode   String
   country      String
   //
-  user         User        @relation(fields: [userId], references: [id])
+  user         Customer    @relation(fields: [userId], references: [id])
   lineItems    LineItem[]
   payments     Payment[]
   shipments    Shipment[]
@@ -65,7 +65,7 @@ model LineItem {
   @@index([orderId])
 }
 
-model User {
+model Customer {
   id            String       @id @default(cuid())
   email         String       @unique
   name          String
@@ -73,6 +73,8 @@ model User {
   orders        Order[]
   userAddressId String?      @unique
   userAddress   UserAddress? @relation(fields: [userAddressId], references: [id])
+
+  @@map("User")
 }
 
 model Payment {
@@ -125,7 +127,7 @@ model Shipment {
 }
 
 model UserAddress {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   addressLine1 String
   addressLine2 String?
   city         String
@@ -133,10 +135,10 @@ model UserAddress {
   postalCode   String
   country      String
   isDefault    Boolean
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
   //
-  user         User[]
+  user         Customer[]
 }
 
 model Product {
