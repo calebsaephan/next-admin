@@ -49,7 +49,7 @@ const data = {
         },
         {
             title: "Inventory",
-            url: "#",
+            url: "/inventory",
             icon: ClipboardList,
         },
         {

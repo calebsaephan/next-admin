@@ -23,11 +23,7 @@ import {
 } from "@/components/ui/table"
 import prisma from "@/lib/prisma"
 import { OrderWithFullDetails } from "@/types"
-import {
-    capitalize,
-    formatCurrency,
-    formatCurrencyNoUnitDisplay,
-} from "@/utils"
+import { capitalize, formatCurrencyNoUnitDisplay } from "@/utils"
 import { getStatusBadgeVariant } from "@/utils/orders"
 import { MoveLeft } from "lucide-react"
 
