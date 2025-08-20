@@ -107,7 +107,7 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
         },
     },
     {
-        accessorKey: "user",
+        accessorKey: "customer",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -121,7 +121,9 @@ export const columns: ColumnDef<OrderWithUserPayment>[] = [
             </Button>
         ),
         cell: ({ row }) => {
-            return <div className="lowercase">{row.original.user?.email}</div>
+            return (
+                <div className="lowercase">{row.original.customer?.email}</div>
+            )
         },
     },
     {

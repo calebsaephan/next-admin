@@ -28,12 +28,15 @@ import {
 import { ScrollArea } from "../ui/scroll-area"
 import { NavHeader } from "./nav-header"
 import DarkModeToggle from "../dark-mode/DarkModeToggle"
+import { authClient } from "@/lib/auth-client"
+
+const { data: session } = await authClient.getSession()
 
 const data = {
     user: {
-        name: "shadcn",
-        email: "m@example.com",
-        // avatar: "/avatars/shadcn.jpg",
+        name: session?.user.name ?? "",
+        email: session?.user.email ?? "",
+        // avatar: "",
     },
     navMain: [
         {
@@ -113,7 +116,9 @@ const data = {
     ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export default function AppSidebar({
+    ...props
+}: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
