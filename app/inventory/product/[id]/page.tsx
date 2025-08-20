@@ -5,10 +5,15 @@ import ProductForm from "../../components/ProductForm"
 export default async function ProductDetailPage({
     params,
 }: {
-    params: { id: string }
+    params: Promise<{ id: string }>
 }) {
+    const { id: productId } = await params
+    if (!productId) {
+        throw new Error("Product ID is required")
+    }
+
     const data = await prisma.product.findUnique({
-        where: { id: params.id },
+        where: { id: productId },
         include: { ProductImage: { orderBy: { order: "asc" } } },
     })
 

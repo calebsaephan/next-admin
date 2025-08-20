@@ -27,11 +27,11 @@ import { capitalize, formatCurrencyNoUnitDisplay } from "@/utils"
 import { getStatusBadgeVariant } from "@/utils/orders"
 import { MoveLeft } from "lucide-react"
 
-interface PageProps {
+export default async function Page({
+    params,
+}: {
     params: Promise<{ id: string }>
-}
-
-export default async function Page({ params }: PageProps) {
+}) {
     const { id: orderId } = await params
     if (!orderId) {
         throw new Error("Order ID is required")
