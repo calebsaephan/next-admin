@@ -17,6 +17,8 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "../ui/sidebar"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 export function NavUser({
     user,
@@ -28,6 +30,18 @@ export function NavUser({
     }
 }) {
     const { isMobile } = useSidebar()
+    const router = useRouter()
+
+    const logout = async () => {
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    router.push("/login")
+                },
+            },
+        })
+        router.refresh()
+    }
 
     return (
         <SidebarMenu>
@@ -75,7 +89,7 @@ export function NavUser({
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={logout}>
                             <LogOut />
                             Log out
                         </DropdownMenuItem>

@@ -38,7 +38,7 @@ export default async function Page({ params }: PageProps) {
     }
     const data = await prisma.order.findUnique({
         include: {
-            user: true,
+            customer: true,
             payments: true,
             shipments: true,
             lineItems: {
@@ -85,11 +85,11 @@ export default async function Page({ params }: PageProps) {
                                 <div className="grid grid-cols-3">
                                     <div className="flex flex-col">
                                         <DisplayLabel>Name</DisplayLabel>
-                                        <span>{order.user.name}</span>
+                                        <span>{order.customer.name}</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <DisplayLabel>Email</DisplayLabel>
-                                        <span>{order.user.email}</span>
+                                        <span>{order.customer.email}</span>
                                     </div>
                                 </div>
                             </CardContent>

@@ -17,7 +17,7 @@ datasource db {
 model Order {
   id           String      @id @default(cuid())
   orderNumber  String      @unique
-  userId       String
+  customerId   String
   status       OrderStatus @default(PENDING)
   // Financial
   total        Decimal     @db.Decimal(10, 2)
@@ -38,12 +38,12 @@ model Order {
   postalCode   String
   country      String
   //
-  user         Customer    @relation(fields: [userId], references: [id])
+  customer     Customer    @relation(fields: [customerId], references: [id])
   lineItems    LineItem[]
   payments     Payment[]
   shipments    Shipment[]
 
-  @@index([userId])
+  @@index([customerId])
   @@index([status])
   @@index([createdAt])
 }
@@ -66,15 +66,13 @@ model LineItem {
 }
 
 model Customer {
-  id            String       @id @default(cuid())
-  email         String       @unique
-  name          String
-  phoneNumber   String?
-  orders        Order[]
-  userAddressId String?      @unique
-  userAddress   UserAddress? @relation(fields: [userAddressId], references: [id])
-
-  @@map("User")
+  id          String           @id @default(cuid())
+  email       String           @unique
+  name        String
+  phoneNumber String?
+  orders      Order[]
+  addressId   String?          @unique
+  address     CustomerAddress? @relation(fields: [addressId], references: [id])
 }
 
 model Payment {
@@ -126,7 +124,7 @@ model Shipment {
   @@index([orderId])
 }
 
-model UserAddress {
+model CustomerAddress {
   id           String     @id @default(cuid())
   addressLine1 String
   addressLine2 String?
@@ -138,7 +136,7 @@ model UserAddress {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   //
-  user         Customer[]
+  customer     Customer[]
 }
 
 model Product {
@@ -223,4 +221,63 @@ enum RefundStatus {
   SUCCEEDED
   FAILED
   CANCELED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
 }

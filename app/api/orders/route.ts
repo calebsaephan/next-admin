@@ -7,7 +7,7 @@ export default async function GET(request: Request) {
     try {
         const orders = await prisma.order.findMany({
             include: {
-                user: true,
+                customer: true,
                 payments: true,
             },
         })

@@ -5,7 +5,7 @@ import {
     ShipmentStatus,
     RefundStatus,
     Product,
-    UserAddress,
+    CustomerAddress,
     Order,
     Payment,
     Prisma,
@@ -33,7 +33,7 @@ const generateRandomPriceAndStock = () => {
 
 const generateShippingAddresses = async (
     amount: number = 100
-): Promise<UserAddress[]> => {
+): Promise<CustomerAddress[]> => {
     const addresses = []
 
     for (let i = 0; i < amount; i++) {
@@ -50,7 +50,7 @@ const generateShippingAddresses = async (
         addresses.push(addr)
     }
 
-    const addressesDB = await prisma.userAddress.createManyAndReturn({
+    const addressesDB = await prisma.customerAddress.createManyAndReturn({
         data: addresses,
     })
     return addressesDB
@@ -127,7 +127,7 @@ const createRefund = async (paymentId: string) => {
     }
 }
 
-const createOrder = async (userId: string, address: UserAddress) => {
+const createOrder = async (customerId: string, address: CustomerAddress) => {
     const orderNumber = await generateOrderNumber()
     const subtotal = parseFloat(faker.commerce.price())
     const tax = subtotal * 0.1
@@ -139,7 +139,7 @@ const createOrder = async (userId: string, address: UserAddress) => {
 
     const order: Prisma.OrderCreateManyInput = {
         orderNumber,
-        userId,
+        customerId,
         status: faker.helpers.arrayElement([
             OrderStatus.PENDING,
             OrderStatus.CONFIRMED,
@@ -194,11 +194,11 @@ const generateCustomers = async (amount: number): Promise<Customer[]> => {
         }
         customers.push(customer)
     }
-    const usersDB = await prisma.customer.createManyAndReturn({
+    const customersDB = await prisma.customer.createManyAndReturn({
         data: customers,
     })
 
-    return usersDB
+    return customersDB
 }
 
 const generatePayments = async (orders: Order[]) => {
@@ -270,7 +270,7 @@ const generateRefunds = async (payments: Payment[]) => {
 const generateOrders = async (
     amount: number,
     customers: Customer[],
-    addresses: UserAddress[]
+    addresses: CustomerAddress[]
 ) => {
     const orders = []
     for (let i = 0; i < amount; i++) {
@@ -288,10 +288,10 @@ const generateOrders = async (
 }
 
 const seed = async () => {
-    const users = await generateCustomers(100)
+    const customers = await generateCustomers(100)
     const addresses = await generateShippingAddresses(100)
     const products = await generateProducts(100)
-    const orders = await generateOrders(100, users, addresses)
+    const orders = await generateOrders(100, customers, addresses)
 
     await generateLineItemsForOrders(orders, products)
     const payments = await generatePayments(orders)

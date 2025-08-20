@@ -4,7 +4,7 @@ import OrdersTable from "./components/OrdersTable"
 export default async function Page() {
     const data = await prisma.order.findMany({
         include: {
-            user: true,
+            customer: true,
             payments: true,
         },
     })
