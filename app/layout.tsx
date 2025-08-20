@@ -1,12 +1,12 @@
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import "./globals.css"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Funnel_Sans, Fira_Code, Figtree, Roboto_Mono } from "next/font/google"
+import { Figtree, Roboto_Mono } from "next/font/google"
 import { ThemeProvider } from "@/components/dark-mode/ThemeProvider"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { SidebarWrapper } from "@/components/sidebar/sidebar-wrapper"
 
 const funnelSans = Figtree()
 const firaCode = Roboto_Mono()
@@ -34,7 +34,7 @@ export default async function Layout({
                     enableSystem={true}
                 >
                     <SidebarProvider>
-                        {isSignedIn && <AppSidebar />}
+                        {isSignedIn && <SidebarWrapper />}
                         <div className="flex max-h-screen w-full m-1 box-border rounded-lg bg-background overflow-hidden">
                             <div className="flex-1 p-2 overflow-auto box-border">
                                 <main>{children}</main>
