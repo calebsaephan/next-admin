@@ -3,7 +3,7 @@ import { handleError } from "@/lib/api"
 
 const prisma = new PrismaClient()
 
-export default async function GET(request: Request) {
+export async function GET(request: Request) {
     try {
         const orders = await prisma.order.findMany({
             include: {
