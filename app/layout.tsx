@@ -6,7 +6,7 @@ import { Figtree, Roboto_Mono } from "next/font/google"
 import { ThemeProvider } from "@/components/dark-mode/ThemeProvider"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { SidebarWrapper } from "@/components/sidebar/sidebar-wrapper"
+import AppSidebar from "@/components/sidebar/app-sidebar"
 
 const figtree = Figtree({ subsets: ["latin"] })
 const robotoMono = Roboto_Mono({ subsets: ["latin"] })
@@ -34,9 +34,9 @@ export default async function Layout({
                     enableSystem={true}
                 >
                     <SidebarProvider>
-                        {isSignedIn && <SidebarWrapper />}
+                        {isSignedIn && <AppSidebar />}
                         <div className="flex max-h-screen w-full m-1 box-border rounded-lg bg-background overflow-hidden">
-                            <div className="flex-1 p-2 overflow-auto box-border">
+                            <div className="flex-1 m-1 overflow-auto box-border">
                                 <main>{children}</main>
                             </div>
                         </div>
