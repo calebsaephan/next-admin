@@ -30,14 +30,7 @@ import { NavHeader } from "./nav-header"
 import DarkModeToggle from "../dark-mode/DarkModeToggle"
 import { authClient } from "@/lib/auth-client"
 
-const { data: session } = await authClient.getSession()
-
 const data = {
-    user: {
-        name: session?.user.name ?? "",
-        email: session?.user.email ?? "",
-        // avatar: "",
-    },
     navMain: [
         {
             title: "Dashboard",
@@ -119,6 +112,14 @@ const data = {
 export default function AppSidebar({
     ...props
 }: React.ComponentProps<typeof Sidebar>) {
+    const { data: session } = authClient.useSession()
+
+    const user = {
+        name: session?.user.name ?? "",
+        email: session?.user.email ?? "",
+        avatar: "/assets/avatar-1775.svg",
+    }
+
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
@@ -138,7 +139,7 @@ export default function AppSidebar({
                 </SidebarMenu>
             </SidebarGroup>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser user={user} />
             </SidebarFooter>
         </Sidebar>
     )
