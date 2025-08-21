@@ -315,10 +315,14 @@ export default function OrdersTable({
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="text-muted-foreground flex-1 text-sm">
+            <div className="flex items-center justify-between space-x-2 py-4">
+                <div className="text-muted-foreground text-sm">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
                     {table.getFilteredRowModel().rows.length} row(s) selected.
+                </div>
+                <div className="text-sm">
+                    Page {table.getState().pagination.pageIndex + 1} of{" "}
+                    {table.getPageCount()}
                 </div>
                 <div className="space-x-2">
                     <Button
