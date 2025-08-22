@@ -36,7 +36,7 @@ export default async function Layout({
                     <SidebarProvider>
                         {isSignedIn && <AppSidebar />}
                         <div className="flex max-h-screen w-full m-1 box-border rounded-lg bg-background overflow-hidden">
-                            <div className="flex-1 m-1 overflow-auto box-border">
+                            <div className="flex-1 m-1 p-2 overflow-auto box-border">
                                 <main>{children}</main>
                             </div>
                         </div>

@@ -31,3 +31,5 @@ export type DisplayCurrencyLabelProps = React.ComponentProps<"span"> & {
     currency?: string
     showUnits?: boolean
 }
+
+export type DashboardRange = "7d" | "30d" | "90d" | "all"

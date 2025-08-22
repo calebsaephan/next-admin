@@ -1,7 +1,5 @@
-import { PrismaClient } from "@/app/generated/prisma"
 import { handleError } from "@/lib/api"
-
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export async function GET(request: Request) {
     try {
