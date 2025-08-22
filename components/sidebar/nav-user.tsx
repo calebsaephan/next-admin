@@ -43,6 +43,10 @@ export function NavUser({
         router.refresh()
     }
 
+    const account = () => {
+        router.push("/account")
+    }
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -83,7 +87,7 @@ export function NavUser({
                         sideOffset={4}
                     >
                         <DropdownMenuGroup>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={account}>
                                 <UserRound />
                                 Account
                             </DropdownMenuItem>
